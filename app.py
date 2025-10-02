@@ -1,20 +1,21 @@
 from flask import Flask
 import threading
-import bot_main  # rename your existing bot code file to bot_main.py
+import bot_main  # Import your bot file (bot_main.py)
 
 app = Flask(__name__)
 
-# Health check endpoint
-@app.route('/')
+# Health check endpoint for Koyeb
+@app.route("/")
 def health():
     return "OK", 200
 
-# Run bot in a separate thread
-def run_bot():
-    bot_main.bot.infinity_polling()
+# Start the bot in a separate thread
+def start_bot():
+    bot_main.infinity_polling()
 
-if __name__ == '__main__':
-    # Start bot thread
-    threading.Thread(target=run_bot).start()
-    # Start Flask app for health checks
-    app.run(host='0.0.0.0', port=8080)
+if __name__ == "__main__":
+    threading.Thread(target=start_bot, daemon=True).start()
+    # Run Flask for health check
+    app.run(host="0.0.0.0", port=8080)
+
+
