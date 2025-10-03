@@ -24,7 +24,8 @@ except Exception as e:
 
 API_TOKEN = os.getenv("API_TOKEN")              # Telegram bot token
 MONGO_URI = os.getenv("MONGO_URI")              # MongoDB connection string
-ADMIN_ID = int(os.getenv("ADMIN_ID"))           # Your Telegram ID
+ADMIN_ID = int(os.getenv("ADMIN_ID"))
+FIXED_CHANNEL_1 = int(os.getenv("FIXED_CHANNEL_1")) # Your Telegram ID
 STORAGE_GROUP_ID = int(os.getenv("STORAGE_GROUP_ID"))
 
 bot = telebot.TeleBot(API_TOKEN)
@@ -181,6 +182,7 @@ def ask_to_join(user_id, ch1, invite_link, code):
 # ---------------- RUN BOT ----------------
 print("Bot is running...")
 bot.infinity_polling()
+
 
 
 
