@@ -10,7 +10,7 @@ API_TOKEN = os.getenv("API_TOKEN")              # Telegram bot token
 MONGO_URI = os.getenv("MONGO_URI")              # MongoDB connection string
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 STORAGE_GROUP_ID = int(os.getenv("STORAGE_GROUP_ID"))
-FIXED_CHANNEL_1 = "@kinnammovie"  # Public channel
+FIXED_CHANNEL_1 = os.getenv("FIXED_CHANNEL_1")  # Public channel
 
 # ---------------- MongoDB Connection ----------------
 try:
@@ -161,6 +161,7 @@ def ask_to_join(user_id, ch1, invite_link, code):
     bot.send_message(user_id, "⚠️ Join both channels to access files.", reply_markup=markup)
 
 # ---------------- RUN BOT ----------------
+
 
 
 
