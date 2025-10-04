@@ -18,9 +18,9 @@ try:
     db = client["telegram_bot"]
     channels_col = db["private_channels"]
     batches_col = db["batches"]
-    print("MongoDB connected")
+   # print("MongoDB connected")
 except Exception as e:
-    print("MongoDB connection failed:", e)
+   # print("MongoDB connection failed:", e)
     channels_col = None
     batches_col = None
 
@@ -161,8 +161,7 @@ def ask_to_join(user_id, ch1, invite_link, code):
     bot.send_message(user_id, "⚠️ Join both channels to access files.", reply_markup=markup)
 
 # ---------------- RUN BOT ----------------
-print("Bot is running...")
-bot.infinity_polling()
+
 
 
 
