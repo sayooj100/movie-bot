@@ -181,7 +181,7 @@ def ask_to_join(user_id, ch1, invite_link, code):
 
 # ---------------- RUN BOT ----------------
 print("Bot is running...")
-bot.infinity_polling()
+
 
 
 
