@@ -158,7 +158,10 @@ def ask_to_join(user_id, ch1, invite_link, code):
     markup.add(btn1, btn2, retry_btn)
     bot.send_message(user_id, "⚠️ Join both channels to access files.", reply_markup=markup)
 
-# ---------------- RUN BOT ----------------
+# ---------------- NO POLLING HERE ----------------
+# (Webhook will handle updates through app.py)
+
+
 
 
 
