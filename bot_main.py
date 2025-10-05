@@ -18,14 +18,12 @@ try:
     db = client["telegram_bot"]
     channels_col = db["private_channels"]
     batches_col = db["batches"]
-   # print("MongoDB connected")
-except Exception as e:
-   # print("MongoDB connection failed:", e)
+except Exception:
     channels_col = None
     batches_col = None
 
 # ---------------- Initialize Bot ----------------
-bot = telebot.TeleBot(API_TOKEN, threaded=True)  # threaded=True ensures safe concurrent polling
+bot = telebot.TeleBot(API_TOKEN, threaded=True)
 
 # ---------------- In-Memory Data ----------------
 private_channels = {}  # {admin_id: {"chat_id": int, "invite_link": str}}
@@ -60,7 +58,7 @@ def save_private_channel_id(message):
         invite_link = pending_batches[admin_id]["invite_link"]
 
         # Save in MongoDB
-        if channels_col:
+        if channels_col is not None:
             channels_col.update_one(
                 {"admin_id": admin_id},
                 {"$set": {"chat_id": chat_id, "invite_link": invite_link}},
@@ -95,7 +93,7 @@ def finalize_batch(message):
         batch = pending_batches[admin_id]
 
         # Save in MongoDB
-        if batches_col:
+        if batches_col is not None:
             batches_col.insert_one({
                 "code": batch["code"],
                 "admin_id": admin_id,
@@ -119,7 +117,7 @@ def handle_user_request(message, code):
     batch = files_db.get(code)
 
     # Try MongoDB if not in memory
-    if not batch and batches_col:
+    if not batch and batches_col is not None:
         db_batch = batches_col.find_one({"code": code})
         if db_batch:
             batch = {"files": db_batch["files"], "admin_id": db_batch["admin_id"]}
@@ -130,7 +128,7 @@ def handle_user_request(message, code):
 
     admin_id = batch["admin_id"]
     ch2 = private_channels.get(admin_id)
-    if not ch2 and channels_col:
+    if not ch2 and channels_col is not None:
         db_ch = channels_col.find_one({"admin_id": admin_id})
         if db_ch:
             ch2 = {"chat_id": db_ch["chat_id"], "invite_link": db_ch["invite_link"]}
@@ -161,6 +159,9 @@ def ask_to_join(user_id, ch1, invite_link, code):
     bot.send_message(user_id, "⚠️ Join both channels to access files.", reply_markup=markup)
 
 # ---------------- RUN BOT ----------------
+
+
+
 
 
 
