@@ -1,3 +1,4 @@
+from flask import Flask, request
 import telebot
 from telebot import types
 import random
@@ -6,24 +7,25 @@ import os
 from pymongo import MongoClient
 
 # ---------------- Environment Variables ----------------
-API_TOKEN = os.getenv("API_TOKEN")              # Telegram bot token
-MONGO_URI = os.getenv("MONGO_URI")              # MongoDB connection string
+API_TOKEN = os.getenv("API_TOKEN")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # e.g., https://<your-koyeb-domain>/webhook
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 STORAGE_GROUP_ID = int(os.getenv("STORAGE_GROUP_ID"))
-FIXED_CHANNEL_1 = os.getenv("FIXED_CHANNEL_1")  # Public channel
+FIXED_CHANNEL_1 = os.getenv("FIXED_CHANNEL_1")  # Public channel username
+
+# ---------------- Initialize bot ----------------
+bot = telebot.TeleBot(API_TOKEN, threaded=True)
+app = Flask(__name__)
 
 # ---------------- MongoDB Connection ----------------
 try:
-    client = MongoClient(MONGO_URI, tls=True)
+    client = MongoClient(os.getenv("MONGO_URI"), tls=True)
     db = client["telegram_bot"]
     channels_col = db["private_channels"]
     batches_col = db["batches"]
 except Exception:
     channels_col = None
     batches_col = None
-
-# ---------------- Initialize Bot ----------------
-bot = telebot.TeleBot(API_TOKEN, threaded=True)
 
 # ---------------- In-Memory Data ----------------
 private_channels = {}  # {admin_id: {"chat_id": int, "invite_link": str}}
@@ -158,8 +160,27 @@ def ask_to_join(user_id, ch1, invite_link, code):
     markup.add(btn1, btn2, retry_btn)
     bot.send_message(user_id, "⚠️ Join both channels to access files.", reply_markup=markup)
 
-# ---------------- NO POLLING HERE ----------------
-# (Webhook will handle updates through app.py)
+# ---------------- Webhook route ----------------
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    json_data = request.get_json()
+    if json_data:
+        update = telebot.types.Update.de_json(json_data)
+        bot.process_new_updates([update])
+    return "OK", 200
+
+# ---------------- Health check ----------------
+@app.route("/", methods=["GET"])
+def index():
+    return "Bot is running!", 200
+
+# ---------------- Set webhook on startup ----------------
+if __name__ == "__main__":
+    bot.remove_webhook()
+    bot.set_webhook(url=WEBHOOK_URL)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+
+
 
 
 
