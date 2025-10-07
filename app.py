@@ -1,23 +1,32 @@
 import os
-import threading
-import time
-from flask import Flask
-import bot_main  # Import your Telegram bot file here
+import telebot
+from flask import Flask, request
+import bot_main
 
+API_TOKEN = os.getenv("API_TOKEN")
+
+bot = bot_main.bot
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Bot is running on Render!"
+    return "✅ Telegram Bot is Running on Render!"
 
-def run_bot():
-    bot_main.run_bot()  # Function inside bot_main.py that starts polling
+@app.route(f'/{API_TOKEN}', methods=['POST'])
+def webhook():
+    json_str = request.get_data().decode('UTF-8')
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return 'OK', 200
 
 if __name__ == "__main__":
-    # Run the bot in a background thread
-    threading.Thread(target=run_bot).start()
+    # Webhook setup
     port = int(os.environ.get("PORT", 8080))
+    bot.remove_webhook()
+    bot.set_webhook(url=f"https://your-render-app-name.onrender.com/{API_TOKEN}")
     app.run(host="0.0.0.0", port=port)
+
+
 
 
 
